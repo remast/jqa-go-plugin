@@ -9,4 +9,12 @@ public interface GoFunctionDescriptor extends GoDescriptor, NamedDescriptor {
     String getName();
     void setName(String name);
 
+    Integer getFirstLineNumber();
+    void setFirstLineNumber(Integer firstLineNumber);
+
+    Integer getLastLineNumber();
+    void setLastLineNumber(Integer lastLineNumber);
+
+    int getEffectiveLineCount();
+    void setEffectiveLineCount(int effectiveLineCount);
 }

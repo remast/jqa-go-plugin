@@ -57,16 +57,30 @@ public class GoFileScannerPlugin extends AbstractScannerPlugin<FileResource, GoF
                     if (child instanceof GoParser.PackageClauseContext) {
                         GoParser.PackageClauseContext packageClauseContext = (GoParser.PackageClauseContext) child;
                         String packageName = packageClauseContext.getChild(1).getText();
-                        System.out.println(packageName);
+                        // TODO: Add Go Package support
                     } else if (child instanceof GoParser.FunctionDeclContext) {
                         GoParser.FunctionDeclContext functionDeclContext = (GoParser.FunctionDeclContext) child;
                         String name = functionDeclContext.getChild(1).getText();
+                        int firstLineNumber = functionDeclContext.getStart().getLine();
+                        int lastLineNumber = functionDeclContext.getStop().getLine();
+                        int effectiveLineCount = lastLineNumber - firstLineNumber;
 
                         GoFunctionDescriptor functionDescriptor = store.create(GoFunctionDescriptor.class);
                         functionDescriptor.setName(name);
-                        goFileDescriptor.getFunctions().add(functionDescriptor);
-                    }
+                        functionDescriptor.setFirstLineNumber(firstLineNumber);
+                        functionDescriptor.setLastLineNumber(lastLineNumber);
+                        functionDescriptor.setEffectiveLineCount(effectiveLineCount);
 
+                        goFileDescriptor.getFunctions().add(functionDescriptor);
+                    } else if (child instanceof GoParser.MethodDeclContext) {
+                        GoParser.MethodDeclContext methodDeclContext = (GoParser.MethodDeclContext) child;
+                        String name = methodDeclContext.getChild(1).getText();
+                        int firstLineNumber = methodDeclContext.getStart().getLine();
+                        int lastLineNumber = methodDeclContext.getStop().getLine();
+                        int effectiveLineCount = lastLineNumber - firstLineNumber;
+
+                        System.out.println(methodDeclContext);
+                    }
                 }
 
                 System.out.println(sourceFileContext.getText());
