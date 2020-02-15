@@ -8,6 +8,7 @@ import org.assertj.core.api.AbstractBooleanAssert;
 import org.assertj.core.api.Assertions;
 import org.hamcrest.CoreMatchers;
 import org.jqassistant.contrib.plugin.go.model.GoFileDescriptor;
+import org.jqassistant.contrib.plugin.go.model.GoFunctionDescriptor;
 import org.junit.jupiter.api.Test;
 import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.CoreMatchers.*;
@@ -33,10 +34,15 @@ public class GoFileScannerPluginTest extends AbstractPluginIT {
         // Scan the Go file and assert that the returned descriptor is a CSVFileDescriptor
         assertThat(getScanner().scan(testFile, "/example.go", DefaultScope.NONE), CoreMatchers.<Descriptor>instanceOf(GoFileDescriptor.class));
 
-        // Determine the CSVFileDescriptor by executing a Cypher query
+        // Determine the GoFileDescriptor by executing a Cypher query
         TestResult testResult = query("MATCH (goFile:Go:File) RETURN goFile");
         List<GoFileDescriptor> goFiles = testResult.getColumn("goFile");
         assertThat(goFiles.size(), equalTo(1));
+
+        // Determine the GoFileDescriptor by executing a Cypher query
+        testResult = query("MATCH (goFile:Go:File)-[:DECLARES]->(goFunc:Go:Function) RETURN goFunc");
+        List<GoFunctionDescriptor> goFuncs = testResult.getColumn("goFunc");
+        assertThat(goFuncs.size(), equalTo(4));
 
         store.commitTransaction();
     }

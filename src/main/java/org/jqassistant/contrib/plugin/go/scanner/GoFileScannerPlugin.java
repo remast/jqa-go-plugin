@@ -20,6 +20,7 @@ import com.buschmais.jqassistant.core.store.api.Store;
 import com.buschmais.jqassistant.plugin.common.api.model.FileDescriptor;
 import com.buschmais.jqassistant.plugin.common.api.scanner.AbstractScannerPlugin;
 import com.buschmais.jqassistant.plugin.common.api.scanner.filesystem.FileResource;
+import org.jqassistant.contrib.plugin.go.model.GoFunctionDescriptor;
 
 @Requires(FileDescriptor.class)
 
@@ -51,6 +52,24 @@ public class GoFileScannerPlugin extends AbstractScannerPlugin<FileResource, GoF
                 GoParser parser = new GoParser(tokenStream);
 
                 GoParser.SourceFileContext sourceFileContext = parser.sourceFile();
+
+                for (ParseTree child : sourceFileContext.children) {
+                    if (child instanceof GoParser.PackageClauseContext) {
+                        GoParser.PackageClauseContext packageClauseContext = (GoParser.PackageClauseContext) child;
+                        String packageName = packageClauseContext.getChild(1).getText();
+                        System.out.println(packageName);
+                    } else if (child instanceof GoParser.FunctionDeclContext) {
+                        GoParser.FunctionDeclContext functionDeclContext = (GoParser.FunctionDeclContext) child;
+                        String name = functionDeclContext.getChild(1).getText();
+
+                        GoFunctionDescriptor functionDescriptor = store.create(GoFunctionDescriptor.class);
+                        functionDescriptor.setName(name);
+                        goFileDescriptor.getFunctions().add(functionDescriptor);
+                    }
+
+                }
+
+                System.out.println(sourceFileContext.getText());
 
             } catch (Exception e) {
                 e.printStackTrace();
