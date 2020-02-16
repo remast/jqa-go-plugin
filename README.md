@@ -7,7 +7,7 @@ It enables jQAssistant to scan and to analyze **[Go](https://golang.org/)** file
 
 Download the jQAssistant command line tool for your system: [jQAssistant - Get Started](https://jqassistant.org/get-started/).
 
-Next download the latest version from the release tab. Put the `jqa-plsql-plugin-*.jar` into the plugins 
+Next download the latest version from the release tab. Put the `jqa-go-plugin-*.jar` into the plugins 
 folder of the jQAssistant commandline tool.
 
 Now scan your files and wait for the plugin to finish:
@@ -23,4 +23,5 @@ jqassistant.sh server
 ```
 
 ## Credits
-Go Grammar provided by https://github.com/antlr/grammars-v4.
+- Go Grammar provided by https://github.com/antlr/grammars-v4.
+- PL/SQL plugin https://github.com/softvis-research/jqa-plsql-plugin.
