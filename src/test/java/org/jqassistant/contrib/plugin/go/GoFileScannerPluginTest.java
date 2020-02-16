@@ -1,11 +1,8 @@
 package org.jqassistant.contrib.plugin.go;
 
 import com.buschmais.jqassistant.core.scanner.api.DefaultScope;
-import com.buschmais.jqassistant.core.shared.io.ClasspathResource;
 import com.buschmais.jqassistant.core.store.api.model.Descriptor;
 import com.buschmais.jqassistant.plugin.common.test.AbstractPluginIT;
-import org.assertj.core.api.AbstractBooleanAssert;
-import org.assertj.core.api.Assertions;
 import org.hamcrest.CoreMatchers;
 import org.jqassistant.contrib.plugin.go.model.GoFileDescriptor;
 import org.jqassistant.contrib.plugin.go.model.GoFunctionDescriptor;
@@ -18,9 +15,14 @@ import java.util.List;
 
 public class GoFileScannerPluginTest extends AbstractPluginIT {
 
+    /**
+     * TRICKY: For JUnit Jupiter we need to override the standard method to get the classes directory.
+     * @see <a href="https://www.baeldung.com/junit-src-test-resources-directory-path">Get the Path of the /src/test/resources Directory in JUnit</a>"
+     */
     protected File getClassesDirectory(Class<?> rootClass) {
-        File directory = ClasspathResource.getFile(rootClass, "/");
-        //((AbstractBooleanAssert) Assertions.assertThat(directory.isDirectory()).describedAs("Expected %s to be a directory", new Object[]{directory.toString()})).isTrue();
+        String resourceName = ".";
+        ClassLoader classLoader = rootClass.getClassLoader();
+        File directory = new File(classLoader.getResource(resourceName).getFile());
         return directory;
     }
 
