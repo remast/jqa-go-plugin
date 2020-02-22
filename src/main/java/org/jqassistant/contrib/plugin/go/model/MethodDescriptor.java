@@ -21,10 +21,6 @@ public interface MethodDescriptor extends GoDescriptor, NamedDescriptor, AccessM
     @Relation("HAS")
     List<ParameterDescriptor> getParameters();
 
-    @Property("main")
-    Boolean isMain();
-    void setMain(Boolean f);
-
     @Property("firstLineNumber")
     Integer getFirstLineNumber();
     void setFirstLineNumber(Integer firstLineNumber);
