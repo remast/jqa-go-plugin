@@ -20,7 +20,9 @@ import com.buschmais.jqassistant.core.store.api.Store;
 import com.buschmais.jqassistant.plugin.common.api.model.FileDescriptor;
 import com.buschmais.jqassistant.plugin.common.api.scanner.AbstractScannerPlugin;
 import com.buschmais.jqassistant.plugin.common.api.scanner.filesystem.FileResource;
-import org.jqassistant.contrib.plugin.go.model.GoFunctionDescriptor;
+import org.jqassistant.contrib.plugin.go.model.MethodDescriptor;
+import org.jqassistant.contrib.plugin.go.model.PackageDescriptor;
+import org.jqassistant.contrib.plugin.go.model.ParameterDescriptor;
 
 @Requires(FileDescriptor.class)
 
@@ -43,9 +45,8 @@ public class GoFileScannerPlugin extends AbstractScannerPlugin<FileResource, GoF
             // Add the Go label.
             final GoFileDescriptor goFileDescriptor = store.addDescriptorType(fileDescriptor, GoFileDescriptor.class);
 
-            // Parse the stream using ANTLR Parser
             try {
-                //ANTLR4 PLSQL Lexer & Parser
+                // Parse the stream using ANTLR Parser
                 InputStream inputStream = item.createStream();
                 Lexer lexer = new GoLexer(CharStreams.fromStream(inputStream));
                 TokenStream tokenStream = new CommonTokenStream(lexer);
@@ -53,44 +54,92 @@ public class GoFileScannerPlugin extends AbstractScannerPlugin<FileResource, GoF
 
                 GoParser.SourceFileContext sourceFileContext = parser.sourceFile();
 
-                for (ParseTree child : sourceFileContext.children) {
-                    if (child instanceof GoParser.PackageClauseContext) {
-                        GoParser.PackageClauseContext packageClauseContext = (GoParser.PackageClauseContext) child;
-                        String packageName = packageClauseContext.getChild(1).getText();
-                        // TODO: Add Go Package support
-                    } else if (child instanceof GoParser.FunctionDeclContext) {
-                        GoParser.FunctionDeclContext functionDeclContext = (GoParser.FunctionDeclContext) child;
-                        String name = functionDeclContext.getChild(1).getText();
-                        int firstLineNumber = functionDeclContext.getStart().getLine();
-                        int lastLineNumber = functionDeclContext.getStop().getLine();
-                        int effectiveLineCount = lastLineNumber - firstLineNumber;
+                GoParser.PackageClauseContext packageClauseContext = sourceFileContext.packageClause();
+                PackageDescriptor packageDescriptor = store.create(PackageDescriptor.class);
+                packageDescriptor.setName(packageClauseContext.IDENTIFIER().getText());
+                // TODO: Add Go Package support
 
-                        GoFunctionDescriptor functionDescriptor = store.create(GoFunctionDescriptor.class);
-                        functionDescriptor.setName(name);
-                        functionDescriptor.setFirstLineNumber(firstLineNumber);
-                        functionDescriptor.setLastLineNumber(lastLineNumber);
-                        functionDescriptor.setEffectiveLineCount(effectiveLineCount);
+                for (GoParser.FunctionDeclContext functionDeclContext : sourceFileContext.functionDecl()) {
+                    String name = functionDeclContext.IDENTIFIER().getText();
+                    int firstLineNumber = functionDeclContext.getStart().getLine();
+                    int lastLineNumber = functionDeclContext.getStop().getLine();
+                    int effectiveLineCount = lastLineNumber - firstLineNumber;
 
-                        goFileDescriptor.getFunctions().add(functionDescriptor);
-                    } else if (child instanceof GoParser.MethodDeclContext) {
-                        GoParser.MethodDeclContext methodDeclContext = (GoParser.MethodDeclContext) child;
-                        String name = methodDeclContext.getChild(1).getText();
-                        int firstLineNumber = methodDeclContext.getStart().getLine();
-                        int lastLineNumber = methodDeclContext.getStop().getLine();
-                        int effectiveLineCount = lastLineNumber - firstLineNumber;
+                    MethodDescriptor methodDescriptor = store.create(MethodDescriptor.class);
+                    methodDescriptor.setName(name);
+                    methodDescriptor.setFirstLineNumber(firstLineNumber);
+                    methodDescriptor.setLastLineNumber(lastLineNumber);
+                    methodDescriptor.setEffectiveLineCount(effectiveLineCount);
+                    methodDescriptor.setExported(!name.substring(0,1).equals(name.substring(0,1).toLowerCase()));
+                    methodDescriptor.setMain(name.equals("main"));
 
-                        System.out.println(methodDeclContext);
+                    GoParser.SignatureContext signatureContext = functionDeclContext.signature();
+                    GoParser.ParametersContext parametersContext = signatureContext.parameters();
+
+                    for (GoParser.ParameterDeclContext parameterDeclContext : parametersContext.parameterDecl()) {
+                        ParameterDescriptor parameterDescriptor = store.create(ParameterDescriptor.class);
+                        parameterDescriptor.setIndex(parameterDeclContext.getAltNumber());
+                        methodDescriptor.getParameters().add(parameterDescriptor);
+
+                        GoParser.Type_Context typeContext = parameterDeclContext.type_();
+                        if (typeContext.typeName() != null) {
+                            String typeName = typeContext.typeName().IDENTIFIER().getText();
+                        } else if (typeContext.typeLit() != null) {
+                            GoParser.TypeLitContext typeLitContext = typeContext.typeLit();
+                            if (typeLitContext.channelType() != null) {
+                                GoParser.ChannelTypeContext channelTypeContext = typeLitContext.channelType();
+                                // channelTypeContext.elementType().type_()
+                            } else if (typeLitContext.structType() != null) {
+                                for (GoParser.FieldDeclContext fieldDeclContext : typeLitContext.structType().fieldDecl()) {
+                                    GoParser.Type_Context fieldTypeContext = fieldDeclContext.type_();
+                                }
+                            }
+                        }
+
+                        GoParser.IdentifierListContext identifierListContext = parameterDeclContext.identifierList();
+                    }
+
+                    goFileDescriptor.getDeclaredMethods().add(methodDescriptor);
+                    packageDescriptor.getMethods().add(methodDescriptor);
+                }
+
+                for (GoParser.MethodDeclContext methodDeclContext : sourceFileContext.methodDecl()) {
+                    String name = methodDeclContext.IDENTIFIER().getText();
+                    int firstLineNumber = methodDeclContext.getStart().getLine();
+                    int lastLineNumber = methodDeclContext.getStop().getLine();
+                    int effectiveLineCount = lastLineNumber - firstLineNumber;
+
+                    MethodDescriptor methodDescriptor = store.create(MethodDescriptor.class);
+                    methodDescriptor.setName(name);
+                    methodDescriptor.setFirstLineNumber(firstLineNumber);
+                    methodDescriptor.setLastLineNumber(lastLineNumber);
+                    methodDescriptor.setEffectiveLineCount(effectiveLineCount);
+                    methodDescriptor.setExported(!name.substring(0,1).equals(name.substring(0,1).toLowerCase()));
+                    methodDescriptor.setMain(name.equals("main"));
+
+                    goFileDescriptor.getDeclaredMethods().add(methodDescriptor);
+                    packageDescriptor.getMethods().add(methodDescriptor);
+                }
+
+                for (GoParser.ImportDeclContext importDeclContext : sourceFileContext.importDecl()) {
+                    for (GoParser.ImportSpecContext importSpecContext : importDeclContext.importSpec()) {
+                        String importPath = importSpecContext.importPath().string_().getText();
+                        PackageDescriptor importedPackageDescriptor = store.create(PackageDescriptor.class);
+                        // TODO: Set name
+                        importedPackageDescriptor.setFullQualifiedName(importPath);
                     }
                 }
 
-                System.out.println(sourceFileContext.getText());
-
-            } catch (Exception e) {
+                for (GoParser.DeclarationContext declarationContext : sourceFileContext.declaration()) {
+                    for (GoParser.ConstSpecContext constSpecContext : declarationContext.constDecl().constSpec()) {
+                        GoParser.ExpressionListContext expressionListContext = constSpecContext.expressionList();
+                        for (GoParser.ExpressionContext expressionContext : expressionListContext.expression()) {
+                        }
+                    }
+                }
+            } catch (IOException e) {
                 e.printStackTrace();
-                System.out.println(e);
             }
-
-
             return goFileDescriptor;
         }
     }

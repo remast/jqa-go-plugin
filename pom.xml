@@ -53,13 +53,11 @@
 
     <!-- tag::dependencies[] -->
     <dependencies>
-
         <dependency>
             <groupId>com.buschmais.jqassistant.core</groupId>
             <artifactId>scanner</artifactId>
             <scope>provided</scope>
         </dependency>
-
         <dependency>
             <groupId>org.antlr</groupId>
             <artifactId>antlr4-runtime</artifactId>

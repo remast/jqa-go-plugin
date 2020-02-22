@@ -25,3 +25,4 @@ jqassistant.sh server
 ## Credits
 - Go Grammar provided by https://github.com/antlr/grammars-v4.
 - PL/SQL plugin https://github.com/softvis-research/jqa-plsql-plugin.
+- Java plugin https://github.com/jQAssistant/jqa-java-plugin.

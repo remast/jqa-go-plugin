@@ -4,7 +4,9 @@
     <model>
         <class>org.jqassistant.contrib.plugin.go.model.GoDescriptor</class>
         <class>org.jqassistant.contrib.plugin.go.model.GoFileDescriptor</class>
-        <class>org.jqassistant.contrib.plugin.go.model.GoFunctionDescriptor</class>
+        <class>org.jqassistant.contrib.plugin.go.model.MethodDescriptor</class>
+        <class>org.jqassistant.contrib.plugin.go.model.PackageDescriptor</class>
+        <class>org.jqassistant.contrib.plugin.go.model.ParameterDescriptor</class>
     </model>
     <scanner>
         <class>org.jqassistant.contrib.plugin.go.scanner.GoFileScannerPlugin</class>

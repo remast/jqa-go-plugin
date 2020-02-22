@@ -8,7 +8,6 @@ import java.util.List;
 public interface GoFileDescriptor extends GoDescriptor, FileDescriptor {
 
     @Relation("DECLARES")
-    List<GoFunctionDescriptor> getFunctions();
-    void setFunctions(List<GoFunctionDescriptor> functions);
+    List<MethodDescriptor> getDeclaredMethods();
 
 }

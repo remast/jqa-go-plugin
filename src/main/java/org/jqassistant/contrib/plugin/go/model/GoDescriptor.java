@@ -6,11 +6,8 @@ import com.buschmais.xo.api.annotation.Abstract;
 import com.buschmais.xo.neo4j.api.annotation.Label;
 
 /**
- * Defines the label which is shared by all nodes representing PLSQL structures.
- * @author Jonathan
- *
+ * Defines the label which is shared by all nodes representing Go structures.
  */
-
 @Abstract
 @Label("Go")
 public interface GoDescriptor extends Descriptor {
