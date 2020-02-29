@@ -25,7 +25,7 @@ import org.jqassistant.contrib.plugin.go.model.ParameterDescriptor;
 
 @Requires(FileDescriptor.class)
 
-public class GoFileScannerPlugin extends AbstractScannerPlugin<FileResource, GoFileDescriptor> {
+public class SourceFileScannerPlugin extends AbstractScannerPlugin<FileResource, GoFileDescriptor> {
 
     @Override
     public boolean accepts(FileResource item, String path, Scope scope) {

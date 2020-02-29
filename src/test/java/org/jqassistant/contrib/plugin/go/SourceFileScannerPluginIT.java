@@ -14,7 +14,7 @@ import static org.hamcrest.CoreMatchers.*;
 import java.io.File;
 import java.util.List;
 
-public class GoFileScannerPluginTest extends AbstractPluginIT {
+public class SourceFileScannerPluginIT extends AbstractPluginIT {
 
     /**
      * TRICKY: For JUnit Jupiter we need to override the standard method to get the classes directory.
@@ -23,15 +23,14 @@ public class GoFileScannerPluginTest extends AbstractPluginIT {
     protected File getClassesDirectory(Class<?> rootClass) {
         String resourceName = ".";
         ClassLoader classLoader = rootClass.getClassLoader();
-        File directory = new File(classLoader.getResource(resourceName).getFile());
-        return directory;
+        return new File(classLoader.getResource(resourceName).getFile());
     }
 
     @Test
     public void scanExampleGo() {
         store.beginTransaction();
 
-        File testFile = new File(getClassesDirectory(GoFileScannerPluginTest.class), "example.go");
+        File testFile = new File(getClassesDirectory(SourceFileScannerPluginIT.class), "example.go");
 
         assertThat(getScanner().scan(testFile, "example.go", DefaultScope.NONE), CoreMatchers.<Descriptor>instanceOf(GoFileDescriptor.class));
 

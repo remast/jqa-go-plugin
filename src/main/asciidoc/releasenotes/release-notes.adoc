@@ -1,0 +1,2 @@
+
+= jQAssistant Camunda DMN Plugin Release Notes
