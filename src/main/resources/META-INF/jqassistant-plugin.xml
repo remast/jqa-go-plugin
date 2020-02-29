@@ -10,5 +10,6 @@
     </model>
     <scanner>
         <class>org.jqassistant.contrib.plugin.go.scanner.SourceFileScannerPlugin</class>
+        <class>org.jqassistant.contrib.plugin.go.scanner.ModuleFileScannerPlugin</class>
     </scanner>
 </jqa-plugin:jqassistant-plugin>
