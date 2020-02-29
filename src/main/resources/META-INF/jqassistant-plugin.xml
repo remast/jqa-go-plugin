@@ -1,12 +1,14 @@
 <jqa-plugin:jqassistant-plugin
-        xmlns:jqa-plugin="http://www.buschmais.com/jqassistant/core/plugin/schema/v1.0" name="PLSQL">
+        xmlns:jqa-plugin="http://www.buschmais.com/jqassistant/core/plugin/schema/v1.0" name="GO">
     <description>Provides a scanner for Go files.</description>
     <model>
         <class>org.jqassistant.contrib.plugin.go.model.GoDescriptor</class>
         <class>org.jqassistant.contrib.plugin.go.model.GoFileDescriptor</class>
         <class>org.jqassistant.contrib.plugin.go.model.MethodDescriptor</class>
-        <class>org.jqassistant.contrib.plugin.go.model.PackageDescriptor</class>
         <class>org.jqassistant.contrib.plugin.go.model.ParameterDescriptor</class>
+        <class>org.jqassistant.contrib.plugin.go.model.PackageDescriptor</class>
+        <class>org.jqassistant.contrib.plugin.go.model.ModuleDescriptor</class>
+        <class>org.jqassistant.contrib.plugin.go.model.ModuleDependsOnDescriptor</class>
     </model>
     <scanner>
         <class>org.jqassistant.contrib.plugin.go.scanner.SourceFileScannerPlugin</class>

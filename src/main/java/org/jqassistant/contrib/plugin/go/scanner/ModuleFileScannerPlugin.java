@@ -16,10 +16,23 @@ import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.PumpStreamHandler;
 
 import java.io.*;
+
+import org.jqassistant.contrib.plugin.go.model.ModuleDependsOnDescriptor;
+import org.jqassistant.contrib.plugin.go.model.ModuleDescriptor;
 import org.jqassistant.contrib.plugin.go.scanner.module.ModuleJson;
+import org.jqassistant.contrib.plugin.go.scanner.module.RequiredModuleJson;
 
 @Requires(FileDescriptor.class)
 public class ModuleFileScannerPlugin extends AbstractScannerPlugin<FileResource, GoFileDescriptor> {
+
+    private static final String COMMAND_GO_MOD_JSON = "go mod edit -json";
+
+    private Gson gson;
+
+    @Override
+    public void initialize() {
+        gson = new Gson();
+    }
 
     @Override
     public boolean accepts(FileResource item, String path, Scope scope) throws IOException {
@@ -33,14 +46,26 @@ public class ModuleFileScannerPlugin extends AbstractScannerPlugin<FileResource,
         final FileDescriptor fileDescriptor = context.getCurrentDescriptor();
         final GoFileDescriptor goFileDescriptor = store.addDescriptorType(fileDescriptor, GoFileDescriptor.class);
 
-        String o = execToString(item.getFile().getParentFile(), "go mod edit -json");
-        Gson gson = new Gson();
-        ModuleJson moduleJson = gson.fromJson(o, ModuleJson.class);
+        final ModuleJson moduleJson = readGoMod(item.getFile().getParentFile());
+
+        final ModuleDescriptor rootModuleDescriptor = store.create(ModuleDescriptor.class);
+        rootModuleDescriptor.setFullQualifiedName(moduleJson.getModule().getPath());
+        for (RequiredModuleJson requiredModuleJson : moduleJson.getRequire()) {
+            final ModuleDescriptor dependencyModuleDescriptor = store.create(ModuleDescriptor.class);
+            dependencyModuleDescriptor.setVersion(requiredModuleJson.getVersion());
+            dependencyModuleDescriptor.setFullQualifiedName(requiredModuleJson.getPath());
+            ModuleDependsOnDescriptor dependsOnDescriptor = store.create(rootModuleDescriptor, ModuleDependsOnDescriptor.class, dependencyModuleDescriptor);
+        }
 
         return goFileDescriptor;
     }
 
-    public String execToString(File workingDirectory, String command) throws IOException {
+    private ModuleJson readGoMod(File workingDirectory) throws IOException {
+        String goModJson = execeuteCommandWithOutput(workingDirectory, COMMAND_GO_MOD_JSON);
+        return gson.fromJson(goModJson, ModuleJson.class);
+    }
+
+    private String execeuteCommandWithOutput(File workingDirectory, String command) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         CommandLine commandline = CommandLine.parse(command);
         DefaultExecutor exec = new DefaultExecutor();

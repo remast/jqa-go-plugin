@@ -9,6 +9,9 @@ public class ModuleJson {
     @SerializedName("Go")
     private String go;
 
+    @SerializedName("Module")
+    private ModuleInfoJson module;
+
     @SerializedName("Require")
     private List<RequiredModuleJson> require;
 
@@ -18,6 +21,14 @@ public class ModuleJson {
 
     public void setRequire(List<RequiredModuleJson> require) {
         this.require = require;
+    }
+
+    public ModuleInfoJson getModule() {
+        return module;
+    }
+
+    public void setModule(ModuleInfoJson module) {
+        this.module = module;
     }
 
     public String getGo() {
